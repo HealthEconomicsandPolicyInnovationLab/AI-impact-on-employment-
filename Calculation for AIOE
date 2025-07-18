@@ -1,1 +1,49 @@
+import excel using "AIOE_DataAppendix.xlsx", ///
+    sheet("Appendix A") firstrow clear
 
+describe
+
+gen str2 soc2 = substr(SOC_Code, 1, 2)
+
+* tostring SOC_Code, replace force
+* gen str2 soc2 = substr(SOC_Code,1,2)
+*）
+
+gen str50 occ_grp = "" 
+
+replace occ_grp = "Representatives, supervisors and managers" ///
+    if inlist(soc2, "11", "13")
+
+replace occ_grp = "Professionals" ///
+    if inlist(soc2, "15", "17", "19", "21", "23", "25", "27", "29")
+
+replace occ_grp = "Technicians" ///
+    if inlist(soc2, "31", "33")
+
+replace occ_grp = "Office Support Workers" ///
+    if soc2 == "43"
+
+replace occ_grp = "Service and Sales Workers" ///
+    if inlist(soc2, "35", "37", "39", "41")
+
+replace occ_grp = "Skilled Agricultural, Forestry, Fishery and Livestock Workers" ///
+    if soc2 == "45"
+
+replace occ_grp = "Craft and Related Trades Workers" ///
+    if inlist(soc2, "47", "49")
+
+replace occ_grp = "Plant and Machine Operators and Assemblers" ///
+    if inlist(soc2, "51", "53")
+
+replace occ_grp = "Elementary Technical Workers and Laborers" ///
+    if inlist(soc2, "37", "53")
+
+drop if missing(occ_grp)
+
+collapse (mean) AIOE, by(occ_grp)
+rename AIOE mean_AIOE
+
+gsort -mean_AIOE
+list occ_grp mean_AIOE, noobs abbrev(20)
+
+export excel using "AIOE_by_OccupationGroup.xlsx", firstrow(variables) replace
