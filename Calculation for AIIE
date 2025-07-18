@@ -1,0 +1,103 @@
+cd "/Volumes/TOBY/01 | 學校-臺大健管所/04-研究/AI impact on employment/Data"
+
+import delimited "Appendix_B.csv", clear case(preserve) encoding(utf8)
+
+rename NAICS naics
+rename "Industry Title" industry_title
+rename AIIE aiie
+
+
+drop group_*
+
+gen industry_group = "" 
+
+* Agriculture, forestry, fishery and husbandry
+replace industry_group = "Agriculture, forestry, fishery and husbandry" if inlist(naics, 1133, 1151, 1152)
+
+* Mining and rock extraction
+replace industry_group = "Mining and rock extraction" if inlist(naics, 2111, 2121, 2122, 2123, 2131)
+
+* Manufacturing
+replace industry_group = "Manufacturing" if inlist(naics, 3111, 3112, 3113, 3114, 3115, 3116, 3117, 3118, 3119, ///
+                                                    3121, 3122, 3131, 3132, 3133, 3141, 3149, 3151, 3152, 3159, ///
+                                                    3161, 3162, 3169, 3211, 3212, 3219, 3221, 3222, 3231, 3241, ///
+                                                    3254, 3261, 3262, 3270, 3311, 3312, 3313, 3314, 3315, ///
+                                                    3327, 3328, 3333, 3335, 3336, 3341, 3342, 3343, 3344, ///
+                                                    3345, 3346, 3351, 3352, 3353, 3359, 3361, 3362, 3363, ///
+                                                    3364, 3365, 3366, 3369, 3379, 3391, 3399) ///
+                                                    | (int(naics/10) == 325 & naics != 3254) ///  // 處理 3250 類的
+                                                    | (int(naics/10) == 332 & !inlist(naics, 3327, 3328)) /// // 處理 3320 類的
+                                                    | (int(naics/10) == 333 & !inlist(naics, 3333, 3335, 3336)) /// // 處理 3330 類的
+                                                    | (int(naics/10) == 337 & naics != 3379) // 處理 3370 類的
+
+* Electricity and gas supply
+replace industry_group = "Electricity and gas supply" if inlist(naics, 2211, 2212)
+
+* Water supply and pollution control
+replace industry_group = "Water supply and pollution control" if inlist(naics, 2213, 5621, 5622, 5629)
+
+* Construction Engineering
+replace industry_group = "Construction Engineering" if inlist(naics, 2361, 2362, 2371, 2372, 2373, 2379, 2381, 2382, 2383, 2389)
+
+* Wholesale and retail trade
+replace industry_group = "Wholesale and retail trade" if inlist(naics, 4231, 4234, 4238, 4243, 4245, 4251, ///
+                                                                4411, 4412, 4413, 4421, 4422, 4431, 4441, 4442, ///
+                                                                4453, 4461, 4471, 4481, 4482, 4483, 4511, 4512, ///
+                                                                4520, 4531, 4539, 4541, 4542, 4543) ///
+                                                                | (int(naics/10) == 423 & !inlist(naics, 4231, 4234, 4238)) /// // 處理 4230 類
+                                                                | (int(naics/10) == 424 & !inlist(naics, 4243, 4245)) /// // 處理 4240 類
+                                                                | (int(naics/10) == 445 & naics != 4453) /// // 處理 4450 類
+                                                                | (int(naics/10) == 453 & naics != 4531 & naics != 4539) // 處理 4530 類
+
+
+* Transportation and warehousing
+replace industry_group = "Transportation and warehousing" if inlist(naics, 4811, 4812, 4821, 4831, 4832, 4840, 4851, 4852, 4853, ///
+                                                                4854, 4855, 4859, 4861, 4862, 4869, 4871, 4872, ///
+                                                                4879, 4881, 4882, 4883, 4884, 4885, 4889, 4911, ///
+                                                                4921, 4922, 4931)
+
+* Accommodation and catering
+replace industry_group = "Accommodation and catering" if inlist(naics, 7211, 7212, 7213, 7223, 7224, 7225)
+
+* Publishing, audio-visual, information and communications
+replace industry_group = "Publishing, audio-visual, information and communications" if inlist(naics, 5111, 5112, 5121, 5122, 5151, 5152, 5170, 5182, 5191)
+
+* Finance and Insurance
+replace industry_group = "Finance and Insurance" if inlist(naics, 5211, 5222, 5230, 5241, 5242, 5251, 5259) ///
+                                                | (int(naics/10) == 522 & naics != 5222) // 處理 5220 類
+
+* Real estate
+replace industry_group = "Real estate" if naics == 5310
+
+* Professional, scientific and technical services
+replace industry_group = "Professional, scientific and technical services" if inlist(naics, 5331, 5411, 5412, 5413, 5414, 5415, 5416, 5417, 5418, 5419)
+
+* Support services
+replace industry_group = "Support services" if inlist(naics, 5511, 5611, 5612, 5613, 5614, 5615, 5616, 5617, 5619)
+
+* Public administration and defense
+replace industry_group = "Public administration and defense" if inlist(naics, 9991, 9992, 9993)
+
+* Education
+replace industry_group = "Education" if inlist(naics, 6111, 6112, 6113, 6114, 6115, 6116, 6117)
+
+* Healthcare and social work services
+replace industry_group = "Healthcare and social work services" if inlist(naics, 6211, 6212, 6213, 6214, 6215, 6216, 6219, ///
+                                                                        6221, 6222, 6223, 6231, 6232, 6233, 6239, ///
+                                                                        6241, 6242, 6243, 6244)
+
+* Arts, entertainment and leisure services
+replace industry_group = "Arts, entertainment and leisure services" if inlist(naics, 7111, 7112, 7113, 7114, 7115, 7121, 7131, 7132, 7139)
+
+* Other industry
+replace industry_group = "Other industry" if inlist(naics, 5321, 8111, 8112, 8113, 8114, 8121, 8122, 8123, 8129, ///
+                                                    8131, 8132, 8133, 8134, 8139) ///
+                                                    | (int(naics/10) == 532 & naics != 5321) // 處理 5320 類
+
+
+tab industry_group if industry_group == ""
+
+bysort industry_group: summarize aiie
+
+collapse (mean) mean_aiie=aiie, by(industry_group)
+list
